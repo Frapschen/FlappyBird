@@ -12,6 +12,4 @@ int main()
  	_getch();
 	closegraph();
 
-
-	
 }

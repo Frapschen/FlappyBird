@@ -35,7 +35,7 @@ void initdata(Data &data)
 	}
 	data.nowscore = 0;
 
-	data.speed = 5;
+	data.speed = 3;
 	data.scoreblock = -1;
 	//文件操作，获取oldscore
 	err=fopen_s(&fp, "score.txt", "r");
@@ -61,7 +61,7 @@ void initdata(Data &data)
 	data.bird.number = 0;
 	data.bird.flow = 0.2;
 	data.bird.up = 0.1;
-	mciSendString("open music\\FlappyBird_sfx_wing.mp3 alias music_wing", NULL, 0, NULL);
+	data.life = true;
 	
 }
 
@@ -369,7 +369,7 @@ void gamestartmenu(Picture picture,Data data)
 						putimage(70, 425, &picture.copyright[1], SRCPAINT);
 
 						FlushBatchDraw();
-						//mciSendString("play music\\FlappyBird_sfx_wing.mp3", NULL, 0, NULL);
+						mciSendString("play music\\FlappyBird_sfx_wing.mp3", NULL, 0, NULL);
 						EndBatchDraw();
 					}
 			}
@@ -670,64 +670,66 @@ void drowpicture(Picture picture, Data data)
 }
 
 //得分或碰撞
-bool collision(Data &data)
+void collision(Data &data)
 {
-	bool first = false, second = false, third = false;
+bool first = false, second = false, third = false;
 	
- 	if (data.bird.birdhigh >= 360)
-		return true;
-	int i = 0;
-	for (; i < 5; i++)
-	{
-		//bird图片参数 x+23,y+23 r=13
-		//障碍物参数y+320
- 		if (data.banddata[i][0] < 110 && data.banddata[i][0]>-20)//障碍物进入判断范围
+if (data.bird.birdhigh >= 360)
+data.life = false;
+else
+{
+int i = 0;
+for (; i < 5; i++)
+{
+//bird图片参数 x+23,y+23 r=13
+//障碍物参数y+320
+if (data.banddata[i][0] < 110 && data.banddata[i][0]>-20)//障碍物进入判断范围
+{
+//圆心X,Y
+int rx = 25 + 23;
+int ry = data.bird.birdhigh + 23;
+
+//上方障碍物底部X，Y
+int bux = data.banddata[i][0];
+int buy = data.banddata[i][1] + 320;//障碍物下方边界
+
+									//下方障碍物顶部X,Y
+int bdx = data.banddata[i][0];
+int bdy = data.banddata[i][2];
+
+
+float du = 0, dd = 0;
+
+	if (ry >  buy && ry < data.banddata[i][2])//bird在障碍物中间：//计算点到点距离
+		if (rx < bux || rx>(bux + 53))//bird的圆心没进入夹缝中
 		{
-			//圆心X,Y
-			int rx = 25 + 23;
-			int ry = data.bird.birdhigh + 23;
-
-			//上方障碍物底部X，Y
-			int bux = data.banddata[i][0];
-			int buy= data.banddata[i][1] + 320;//障碍物下方边界
-
-			//下方障碍物顶部X,Y
-			int bdx = data.banddata[i][0];
-			int bdy = data.banddata[i][2];
-
-			
-			float du = 0, dd = 0;
-
-			if (ry >  buy && ry < data.banddata[i][2])//bird在障碍物中间：//计算点到点距离
- 				if (rx < bux || rx>(bux+53))//bird的圆心没进入夹缝中
-				{
- 					if (rx > bux && data.scoreblock!=i)//得分，
-					{
-  						data.scoreblock = i;
-						data.nowscore++;
-					}
- 					du = sqrt(pow((rx-bux),2)+pow((ry - buy),2));
-					dd = sqrt(pow((rx-bdx),2) + pow((ry-bdy), 2));
-					if ((du -13 )<=0 || (dd - 13)<=0)
-						return true;
-				}
-				else//bird 进入夹缝中
-				{
-					du = sqrt(pow(ry-buy,2));
-					dd = sqrt(pow(ry - bdy, 2));
-					if ((du -13 ) <=0 || (dd - 13) <= 0)
-						return true;
-				}
-			else
+			if (rx > bux && data.scoreblock != i)//得分，
 			{
- 				if ((rx+ 13) >= data.banddata[i][0])
-					return true;
+				data.scoreblock = i;
+				data.nowscore++;
 			}
-			break;
+			du = sqrt(pow((rx - bux), 2) + pow((ry - buy), 2));
+			dd = sqrt(pow((rx - bdx), 2) + pow((ry - bdy), 2));
+			if ((du - 13) <= 0 || (dd - 13) <= 0)
+				data.life = false;
 		}
+		else//bird 进入夹缝中
+		{
+			du = sqrt(pow(ry - buy, 2));
+			dd = sqrt(pow(ry - bdy, 2));
+			if ((du - 13) <= 0 || (dd - 13) <= 0)
+				data.life = false;
+		}
+	else
+	{
+		if ((rx + 13) >= data.banddata[i][0])
+			data.life = false;
 	}
-	return false;	
-}
+	break;
+	}
+	}
+	}
+	}
 
 //得分面板
 void scorepanl(Picture picture, Data &data)

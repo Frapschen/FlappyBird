@@ -32,7 +32,10 @@ typedef struct Picture
 	IMAGE sm_num[10];//小号数字
 	IMAGE gametitle[2];//游戏的标题
 	IMAGE getready[2];//准备阶段标题
-	IMAGE button[4][2];//所有的按钮和得分面板 0:button_play ; 1:button_score ; 2:tutorial.jpg ; 3；score_panel
+	/*所有的按钮和得分面板 
+		0:button_play; 1:button_score; 
+		2:tutorial.jpg; 3；score_panel*/
+	IMAGE button[4][2];
 	IMAGE copyright[2];//开始界面的版权文字
 	IMAGE medals[4][2];//奖牌
 	IMAGE gameover[2];//游戏结束
@@ -42,30 +45,27 @@ typedef struct Picture
 typedef struct Data
 {
 	int landdata;//下方移动土地
-	int banddata[5][3];//障碍物 0是障碍物的x坐标，1是上障碍物的y坐标 2是下方障碍物y坐标
+	//障碍物 0是障碍物的x坐标，1是上障碍物的y坐标 2是下方障碍物y坐标
+	int banddata[5][3];
 	int nowscore;//本次得分
 	int speed;//移动速度
 	int oldscore[3];//0第一，1第二，2第三
 	int scoreblock;//分数锁
+	bool life;//bird是否存活
 	Bird bird;//bird数据
 };
-
-using namespace std;
 void initdata(Data &data);//初始化游戏数据
 void birdct(Data &data);// bird控制
 bool play();//开始游戏
 void databack(Data &data);//数据处理
 void gamestartmenu(Picture picture, Data data);//绘制开始界面
 void getread(Picture picture,Data data);//绘制getready界面
-void picturedeal(Picture &picture,int n);//游戏图片处理（加载与旋转） n=1 是加载图片   n=2是旋转bird图片
+void picturedeal(Picture &picture,int n);//游戏图片处理（加载与旋转） n=1 是加载图片
 void drowpicture(Picture picture, Data data);//绘制游戏内容
-bool collision(Data &data);//碰撞
+void collision(Data &data);//碰撞
 void scorepanl(Picture picture,Data &data);//得分面板
-//void threadplaywing(bool birdfly);//翅膀声音监控器
 void changeband(Data &data, int n);//改变障碍物的Y轴数据
 using namespace std;
-#endif // _FB_HEADFILE_H
+#endif
 
-
-//landdata
-//birddata
+// _FB_HEADFILE_H
