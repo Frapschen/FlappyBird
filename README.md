@@ -1,1 +1,2 @@
-Flappy bird
+# Flappy bird
+使用C语言完成的一个小游戏，适合有一定C语言基础的学习。
